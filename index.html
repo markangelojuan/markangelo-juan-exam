@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <title>PHP VueJs MySQL</title>
+</head>
+<body>
+    <div id="app">
+        <nav>
+            <div class="bg-black w-full h-20 text-white flex justify-center items-center">
+                <span class="text-2xl font-semibold">{{ siteName }}</span>
+            </div>
+        </nav> 
+        <div class="flex justify-center w-full bg-black pt-10">
+            <div class="w-[90%] text-white flex flex-col justify-center items-center gap-1">
+                <img :src="channel.profile_picture" alt="profile" class="rounded-full w-[100px] h-[100px] p-2"/>
+                <h1 class="text-white text-2xl font-semibold mt-2">{{ channel.name }}</h1>
+                <p class="text-white pb-4">{{ channel.description }}</p>
+            </div>
+        </div>
+        
+        <div class="w-full flex justify-center mt-20">
+            <div class="w-[90%] flex flex-wrap gap-1 ">
+                <div v-for="video in displayedVideos" :key="video.id" class="mt-2 ml-4 w-[320px] flex justify-center">
+                    <iframe
+                        width="300"
+                        height="168"
+                        :src="'https://www.youtube.com/embed/' + video.video_link"
+                        title="YouTube video player"
+                        frameborder="0"
+                        allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                        allowfullscreen
+                        class="rounded-md"
+                    ></iframe>
+                </div>
+            </div>
+        </div>
+        <div class="flex justify-center items-center mt-10 mb-2">
+            <button @click="showMore = !showMore" class="text-white bg-blue-500 hover:bg-blue-600 rounded-md shadow-md p-2">
+                {{ showMore ? 'Show Less' : 'Load More' }}
+              </button>
+        </div>
+    </div>
+   
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script>
+        const { createApp, ref } = Vue;
+
+        const syncData = async () => {
+            try {
+                await fetch('sync_youtube_channel.php');
+                createJson();
+                console.log('Data synced successfully');
+            } catch (error) {
+                console.error(error);
+            }
+        };
+
+        const createJson = async () => {
+            try {
+                await fetch('youtube_channel_json.php');
+                console.log('JSON file created successfully');
+                fetchData();
+            } catch (error) {
+                console.error(error);
+            }
+        };
+
+        const fetchData = async () => {
+            try {
+                const response = await fetch('youtube_channel.json');
+                const data = await response.json();
+                const fetchedVideos = data.videos;
+                const channelInfo = data.channel;
+               
+                app.videos = fetchedVideos;
+                app.channel = channelInfo;
+
+            } catch (error) {
+                console.error(error);
+            }
+        };
+
+        const app = createApp({
+            setup() {
+                const siteName = ref("Mark Angelo Juan's Exam");
+                const videos = ref([]);
+                const channel = ref([]);
+                const showMore = ref(false);
+                syncData();
+            
+                return {
+                    siteName,
+                    videos,
+                    channel,
+                    showMore
+                };
+            },
+            computed: {
+            displayedVideos() {
+            if (this.showMore) {
+                return this.videos;
+            } else {
+                return this.videos.slice(0, 10);
+            }
+            },
+        },
+        }).mount('#app');
+    </script>
+</body>
+</html>
