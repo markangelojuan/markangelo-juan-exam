@@ -2,7 +2,7 @@
 
 require_once 'db_connection.php';
 
-$api_key = 'AIzaSyDa6KGG7ZYa3Wu2NKatiKxTL6WgL14abkk';
+$api_key = '';
 $youtube_channel_id = 'UCWJ2lWNubArHWmf3FIHbfcQ';
 $base_url = 'https://www.googleapis.com/youtube/v3/';
 $maxResult = 100;
